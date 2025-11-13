@@ -9,7 +9,7 @@ import time
 import traceback
 import sys
 import re
-# python packs_selector.py -path="E:\Decompiler\mine" -version="1.21.1" -loader="fabric"
+# python packs_selector.py -path="E:\folde\mine" -version="1.21.1" -loader="fabric"
 parser = argparse.ArgumentParser(description='Vanilla+ Launcher')
 parser.add_argument('-path', type=str, help='Путь к директории Minecraft', default=None)
 parser.add_argument('-version', type=str, help='Версия Minecraft для фильтрации', default=None)
@@ -277,4 +277,5 @@ if __name__ == '__main__':
     print(f'✅ Сканирование завершено за {time.time() - start_time:.2f} сек')
 
     # Запуск Eel приложения
+
     eel.start('index.html', size=(1400, 900), position=(100, 50), mode='chrome', port=8000, shutdown_delay=30)
