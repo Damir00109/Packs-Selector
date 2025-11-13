@@ -1,0 +1,550 @@
+:root {
+  --primary: #2e7d32;
+  --primary-light: #4caf50;
+  --primary-extra-light: #e8f5e9;
+  --text: #333;
+  --background: #f9f9f9;
+  --card-bg: #fff;
+  --border: #e0e0e0;
+  --accent: #ff9800;
+  --install-green: #4caf50;
+  --yellow-icon: #ffc107;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Container */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--primary);
+  padding: 15px 20px;
+  border-radius: 8px;
+  color: #fff;
+  margin-bottom: 25px;
+  gap: 15px;
+}
+header .logo i {
+  font-size: 2rem;
+}
+
+/* Панель типов контента */
+.content-type-bar {
+  display: flex;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  height: 36px;
+}
+
+.content-type-btn {
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  gap: 8px;
+}
+
+.content-type-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.content-type-btn.active {
+  background: #fff;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.search-area {
+  flex: 2;
+}
+.search-area input {
+  width: 100%;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Per-page bar */
+.per-page-bar {
+  display: flex;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.per-page-bar .option {
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #000;
+  transition: background .2s, color .2s;
+}
+.per-page-bar .option:hover {
+  background: var(--primary-light);
+  color: #fff;
+}
+.per-page-bar .option.selected {
+  background: var(--install-green);
+  color: #fff;
+}
+
+/* Main layout */
+.main-content {
+  display: flex;
+  gap: 25px;
+}
+
+/* Results column */
+.results-column {
+  flex: 3;
+  transition: all 0.3s ease;
+}
+
+.filters-column:not(.show) + .results-column {
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.loader {
+  display: none;
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 30px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-message {
+  display: none;
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.mods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.mod-row {
+  display: flex;
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+.mod-row:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+}
+.mod-icon {
+  flex-shrink: 0;
+  width: 100px;
+  background: #e8f5e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mod-icon img {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+.mod-info {
+  flex: 1;
+  padding: 12px 15px;
+}
+.mod-title {
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mod-author-inline {
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mod-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 8px 0;
+}
+.mod-meta {
+  font-size: 0.85rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mod-actions {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+.install-btn {
+  padding: 6px 14px;
+  background: #fff;
+  color: var(--install-green);
+  border: 2px solid var(--install-green);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+.install-btn:hover {
+  background: var(--install-green);
+  color: #fff;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+.pagination button, .pagination span {
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+.pagination button {
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #fff;
+  cursor: pointer;
+  transition: background .2s;
+}
+.pagination button.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.pagination button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.pagination button:hover:not(.active):not(:disabled) {
+  background: var(--primary-light);
+  color: #fff;
+  border-color: var(--primary-light);
+}
+.ellipsis {
+  padding: 0 8px;
+}
+
+/* Filters column */
+.filters-column {
+  width: 150px;
+  min-height: 300px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  max-height: 2000px;
+}
+
+.filters-column:not(.show) {
+  max-height: 44px;
+  overflow: hidden;
+}
+
+.filter-section {
+  background: var(--card-bg);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.filter-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid var(--primary-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 36px;
+}
+
+.filters-column:not(.show) .filter-section h3 {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+#filters-arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.filters-content {
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.filters-column:not(.show) .filters-content {
+  display: none;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.filter-options, .version-block {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  max-height: 220px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-light) transparent;
+}
+
+/* Кастомный скроллбар */
+.filter-options::-webkit-scrollbar,
+.version-block::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filter-options::-webkit-scrollbar-track,
+.version-block::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.filter-options::-webkit-scrollbar-thumb,
+.version-block::-webkit-scrollbar-thumb {
+  background-color: var(--primary-light);
+  border-radius: 6px;
+}
+
+.snapshot-toggle {
+  margin-top: 10px;
+}
+
+.button-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Стили для кнопок фильтров */
+.filter-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  user-select: none;
+  min-width: 70px;
+  text-align: center;
+  white-space: nowrap;
+  height: 32px;
+}
+
+.filter-button:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.filter-button.active {
+  background: var(--primary-extra-light);
+  border: 2px solid var(--primary);
+  box-shadow: 0 2px 6px rgba(46, 125, 50, 0.2);
+  font-weight: 500;
+}
+
+/* Специальные иконки */
+.yellow-icon {
+  color: var(--yellow-icon);
+  margin-right: 5px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 30px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.filter-section h3 i,
+.filter-group h4 i,
+.filter-button i {
+  margin-right: 6px;
+}
+
+/* Абсолютный задний фон */
+#animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  background: #fff;
+  transition: background 0.7s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+  }
+
+  .filters-column {
+    width: 100%;
+    max-height: none;
+  }
+
+  header {
+    flex-wrap: wrap;
+  }
+
+  .search-area {
+    order: 3;
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+/* Путь установки */
+.path-info {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Состояния кнопок */
+.install-btn[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: #e0e0e0 !important;
+    border-color: #bdbdbd !important;
+    color: #757575 !important;
+}
+
+.install-btn.installing {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+.update-btn {
+    background: #ff9800 !important;
+    border-color: #f57c00 !important;
+    color: white !important;
+}
+
+.update-btn:hover {
+    background: #f57c00 !important;
+}
+
+.error {
+    background: #f44336 !important;
+    border-color: #d32f2f !important;
+    color: white !important;
+}
+
+.installed {
+    background: #4caf50 !important;
+    border-color: #388e3c !important;
+    color: white !important;
+}
+
+/* Мета-информация */
+.mod-meta {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+    font-size: 0.85rem;
+}
+
+.mod-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.mod-row {
+    animation: fadeIn 0.3s ease-out;
+}
