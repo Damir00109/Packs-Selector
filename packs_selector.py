@@ -9,11 +9,12 @@ import time
 import traceback
 import sys
 import re
-# python packs_selector.py -path="E:\folde\mine" -version="1.21.1" -loader="fabric"
+# python packs_selector.py -path="E:\folde\mine" -version="1.21.1" -loader="fabric" -server
 parser = argparse.ArgumentParser(description='Vanilla+ Launcher')
 parser.add_argument('-path', type=str, help='Путь к директории Minecraft', default=None)
 parser.add_argument('-version', type=str, help='Версия Minecraft для фильтрации', default=None)
 parser.add_argument('-loader', type=str, help='Модлоадер для фильтрации', default=None)
+parser.add_argument('-server', action='store_true', help='Серверный режим (скрыть текстуры и шейдеры)')
 args = parser.parse_args()
 
 if args.path:
@@ -33,6 +34,7 @@ print(f'📁 Путь к игре: {GAME_PATH}')
 print(f'📦 Папка модов: {MODS_PATH}')
 print(f'🎨 Папка текстур: {RESOURCEPACKS_PATH}')
 print(f'🌈 Папка шейдеров: {SHADERPACKS_PATH}')
+print(f'🖥️ Серверный режим: {"Да" if args.server else "Нет"}')
 
 
 def create_dir(path):
@@ -47,8 +49,12 @@ def create_dir(path):
         return False
 
 
-# Создаем необходимые директории
-for path in (GAME_PATH, MODS_PATH, RESOURCEPACKS_PATH, SHADERPACKS_PATH):
+# Создаем необходимые директории (в серверном режиме не создаем папки текстур и шейдеров)
+paths_to_create = [GAME_PATH, MODS_PATH]
+if not args.server:
+    paths_to_create.extend([RESOURCEPACKS_PATH, SHADERPACKS_PATH])
+
+for path in paths_to_create:
     if not create_dir(path):
         print(f'❌ Критическая ошибка: не удалось создать папку {path}')
         exit(1)
@@ -95,7 +101,11 @@ def scan_installed_files():
         'shaders': {}
     }
 
-    for pack_type, path in [('mods', MODS_PATH), ('resourcepacks', RESOURCEPACKS_PATH), ('shaders', SHADERPACKS_PATH)]:
+    scan_paths = [('mods', MODS_PATH)]
+    if not args.server:
+        scan_paths.extend([('resourcepacks', RESOURCEPACKS_PATH), ('shaders', SHADERPACKS_PATH)])
+
+    for pack_type, path in scan_paths:
         if not path.exists():
             print(f'❓ Папка не существует: {path}')
             continue
@@ -177,6 +187,12 @@ def download_and_install(project_id, slug, project_type, version_id, title):
     print(f'📋 Slug: {slug}')
     print(f'📋 Type: {project_type}')
 
+    # В серверном режиме запрещаем установку текстур и шейдеров
+    if args.server and project_type in ['resourcepack', 'shader']:
+        error_msg = f'Установка {project_type} запрещена в серверном режиме'
+        print(f'❌ {error_msg}')
+        return {'success': False, 'message': error_msg}
+
     try:
         print('🌐 Запрос информации о версии...')
         version_url = f'https://api.modrinth.com/v2/version/{version_id}'
@@ -256,7 +272,8 @@ def get_launch_params():
     """Получение параметров запуска"""
     return {
         'version': args.version,
-        'loader': args.loader
+        'loader': args.loader,
+        'server': args.server
     }
 
 
