@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let showSnapshots = false;
   let allVersions = [];
   let currentContentType = 'mod';
+  let isServerMode = false; // Добавляем переменную для серверного режима
 
   // Кеши для хранения информации об установленных файлах
   let installedHashes = { mods: {}, resourcepacks: {}, shaders: {} };
@@ -41,6 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Launch params received:", params);
         if (params.version) launchVersion = params.version;
         if (params.loader) launchLoader = params.loader;
+        if (params.server) isServerMode = params.server; // Получаем серверный режим
+
+        // В серверном режиме скрываем вкладки текстур и шейдеров
+        if (isServerMode) {
+          document.querySelectorAll('.content-type-btn[data-type="resourcepack"], .content-type-btn[data-type="shader"]').forEach(btn => {
+            btn.style.display = 'none';
+          });
+        }
+
         applyLaunchFilters();
       }).catch(e => console.error("Error getting launch params:", e));
     } else {
@@ -48,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('version')) launchVersion = urlParams.get('version');
       if (urlParams.has('loader')) launchLoader = urlParams.get('loader');
+      if (urlParams.has('server')) isServerMode = urlParams.get('server') === 'true';
       applyLaunchFilters();
     }
   }
@@ -90,6 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Скрытие фильтра модлоадеров для shader/resourcepack ---
   function updateContentType() {
+    // В серверном режиме разрешаем только моды
+    if (isServerMode && currentContentType !== 'mod') {
+      currentContentType = 'mod';
+      document.querySelectorAll('.content-type-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.content-type-btn[data-type="mod"]').classList.add('active');
+    }
+
     searchInput.placeholder = `Поиск ${getContentTypeName()}...`;
     currentPage = 1;
     // Сбрасываем выбранные лоадеры при смене типа контента
@@ -369,6 +387,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.content-type-btn').forEach(btn => {
       btn.addEventListener('click', function() {
+        // В серверном режиме разрешаем только моды
+        if (isServerMode && this.dataset.type !== 'mod') {
+          return;
+        }
+
         document.querySelectorAll('.content-type-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
         currentContentType = this.dataset.type;
@@ -644,6 +667,12 @@ document.addEventListener('DOMContentLoaded', () => {
         project_type: project.project_type,
         title: project.title
     };
+
+    // В серверном режиме запрещаем установку текстур и шейдеров
+    if (isServerMode && project.project_type !== 'mod') {
+        showPopup('В серверном режиме можно устанавливать только моды.');
+        return;
+    }
 
     let wantedMcVersion = selectedVersions[0];
     let wantedLoader = selectedLoaders[0];
