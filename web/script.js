@@ -221,6 +221,20 @@ document.addEventListener('DOMContentLoaded', () => {
     return 0;
   }
 
+  function gameVersionMatches(wantedMcVersion, gameVersions) {
+    if (!wantedMcVersion) return true;
+    if (gameVersions.includes(wantedMcVersion)) return true;
+    const parts = wantedMcVersion.split('.');
+    const majorMinor = parts.length >= 2 ? `${parts[0]}.${parts[1]}` : wantedMcVersion;
+    return gameVersions.some((gv) => {
+      if (gv.endsWith('.x')) {
+        const prefix = gv.slice(0, -2);
+        return wantedMcVersion.startsWith(prefix + '.') || majorMinor === prefix;
+      }
+      return false;
+    });
+  }
+
   async function getLatestModrinthFileVersion(projectId) {
     try {
       const versionsRes = await fetch(`https://api.modrinth.com/v2/project/${projectId}/version`);
@@ -239,12 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
       versions.sort((a, b) => new Date(b.date_published) - new Date(a.date_published));
 
       for (const v of versions) {
-        const supportsMc = wantedMcVersion ? v.game_versions.includes(wantedMcVersion) : true;
+        const supportsMc = gameVersionMatches(wantedMcVersion, v.game_versions);
         const supportsLoader = (currentContentType === 'mod' && wantedLoader) ? v.loaders.includes(wantedLoader) : true;
-
-        if (!showSnapshots && (v.version_type === 'beta' || v.version_type === 'alpha')) {
-            continue;
-        }
 
         if (supportsMc && supportsLoader) {
           if (v.files && v.files.length > 0) {
@@ -736,12 +746,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let foundVersionForInstall = null;
         for (const v of versions) {
-            const supportsMc = wantedMcVersion ? v.game_versions.includes(wantedMcVersion) : true;
+            const supportsMc = gameVersionMatches(wantedMcVersion, v.game_versions);
             const supportsLoader = (currentContentType === 'mod' && wantedLoader) ? v.loaders.includes(wantedLoader) : true;
-
-            if (!showSnapshots && (v.version_type === 'beta' || v.version_type === 'alpha')) {
-                continue;
-            }
 
             if (supportsMc && supportsLoader) {
                 if (v.files && v.files.length > 0) {
