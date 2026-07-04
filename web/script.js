@@ -42,14 +42,26 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Launch params received:", params);
         if (params.version) launchVersion = params.version;
         if (params.loader) launchLoader = params.loader;
-        if (params.server) isServerMode = params.server; // Получаем серверный режим
+        if (params.server) isServerMode = params.server;
 
-        // В серверном режиме скрываем вкладки текстур и шейдеров
-        if (isServerMode) {
+        if (params.packs && Array.isArray(params.packs)) {
+          document.querySelectorAll('.content-type-btn').forEach(btn => {
+            const t = btn.dataset.type;
+            if (!params.packs.includes(t)) btn.style.display = 'none';
+          });
+          if (params.packs.length > 0) {
+            currentContentType = params.packs[0];
+            document.querySelectorAll('.content-type-btn').forEach(btn => {
+              btn.classList.toggle('active', btn.dataset.type === currentContentType);
+            });
+          }
+        } else if (isServerMode) {
           document.querySelectorAll('.content-type-btn[data-type="resourcepack"], .content-type-btn[data-type="shader"]').forEach(btn => {
             btn.style.display = 'none';
           });
         }
+
+        if (params.lockFilters) filtersLocked = true;
 
         applyLaunchFilters();
       }).catch(e => console.error("Error getting launch params:", e));
@@ -83,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const versionGroup = document.querySelector('.filter-group.version-block');
     const modloaderGroup = document.querySelector('.filter-group.modloader-block');
 
-    if (launchVersion && launchLoader && currentContentType === 'mod') {
-      filtersLocked = true; // Теперь это просто флаг блокировки выбора
+    if ((launchVersion && launchLoader && currentContentType === 'mod') || filtersLocked) {
+      filtersLocked = true;
       if (versionGroup) versionGroup.style.display = 'none';
       if (modloaderGroup) modloaderGroup.style.display = 'none';
       console.log("Filters locked due to launch params.");
