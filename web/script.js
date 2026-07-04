@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Автоматическая установка фильтров из параметров запуска ---
   let launchVersion = null;
   let launchLoader = null;
+  let launchParamsLocked = false;
   // filtersLocked будет управлять только видимостью групп версий/лоадеров и блокировкой их выбора.
   // Не будет влиять на сворачивание всей колонки фильтров.
   let filtersLocked = false;
@@ -61,7 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
 
-        if (params.lockFilters) filtersLocked = true;
+        if (params.lockFilters) {
+          filtersLocked = true;
+          launchParamsLocked = true;
+        }
 
         applyLaunchFilters();
       }).catch(e => console.error("Error getting launch params:", e));
@@ -81,21 +85,22 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedLoaders = [];
 
     if (launchVersion) {
-      selectedVersions.push(launchVersion);
-      // Активируем кнопку только после того, как она будет отрендерена в renderVersionButtons
-      // (вызывается из loadVersions, которая вызывается в init)
-      // Вместо setTimeout, лучше положиться на то, что renderVersionButtons вызывается позже.
+      selectedVersions = [launchVersion];
     }
 
     if (launchLoader && currentContentType === 'mod') {
-      selectedLoaders.push(launchLoader);
-      // Аналогично, активация кнопки будет позже.
+      selectedLoaders = [launchLoader];
     }
 
     const versionGroup = document.querySelector('.filter-group.version-block');
     const modloaderGroup = document.querySelector('.filter-group.modloader-block');
 
-    if ((launchVersion && launchLoader && currentContentType === 'mod') || filtersLocked) {
+    if (launchParamsLocked && launchVersion) {
+      filtersLocked = true;
+      if (versionGroup) versionGroup.style.display = 'none';
+      if (modloaderGroup) modloaderGroup.style.display = 'none';
+      console.log("Filters locked (launcher): version", launchVersion, "loader", launchLoader);
+    } else if ((launchVersion && launchLoader && currentContentType === 'mod') || filtersLocked) {
       filtersLocked = true;
       if (versionGroup) versionGroup.style.display = 'none';
       if (modloaderGroup) modloaderGroup.style.display = 'none';
@@ -122,18 +127,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     searchInput.placeholder = `Поиск ${getContentTypeName()}...`;
     currentPage = 1;
-    // Сбрасываем выбранные лоадеры при смене типа контента
-    selectedLoaders = [];
+    // Сбрасываем лоадеры при смене типа, но не трогаем версию из лаунчера
+    if (!(launchParamsLocked && launchVersion)) {
+      selectedLoaders = [];
+    } else if (launchLoader && currentContentType === 'mod') {
+      selectedLoaders = [launchLoader];
+    } else {
+      selectedLoaders = [];
+    }
 
     const modloaderGroup = document.querySelector('.filter-group.modloader-block');
     const versionGroup = document.querySelector('.filter-group.version-block');
 
-    // Если тип контента - шейдеры или ресурспаки, скрываем модлоадеры и разблокируем версии
-    if (currentContentType === 'shader' || currentContentType === 'resourcepack') {
+    if (launchParamsLocked && launchVersion) {
+      selectedVersions = [launchVersion];
+      filtersLocked = true;
+      if (versionGroup) versionGroup.style.display = 'none';
       if (modloaderGroup) modloaderGroup.style.display = 'none';
-      filtersLocked = false; // Разблокируем фильтры, так как лоадер не нужен
-      if (versionGroup) versionGroup.style.display = ''; // Показываем версию
-    } else { // Если это моды
+    } else if (currentContentType === 'shader' || currentContentType === 'resourcepack') {
+      if (modloaderGroup) modloaderGroup.style.display = 'none';
+      filtersLocked = false;
+      if (versionGroup) versionGroup.style.display = '';
+    } else {
       if (modloaderGroup) modloaderGroup.style.display = ''; // Показываем модлоадеры
 
       // Если есть заблокированные параметры запуска для модов, снова скрываем и блокируем
@@ -435,12 +450,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // После сбора всех активных кнопок, если filtersLocked,
     // мы принудительно устанавливаем launchVersion/launchLoader, чтобы гарантировать их наличие.
     // Это на случай, если пользователь смог деактивировать их через баг или если они не были активны изначально.
-    if (filtersLocked) {
-        if (launchVersion && !selectedVersions.includes(launchVersion)) {
-            selectedVersions = [launchVersion]; // Принудительно устанавливаем
+    if (filtersLocked || launchParamsLocked) {
+        if (launchVersion) {
+            selectedVersions = [launchVersion];
         }
-        if (launchLoader && currentContentType === 'mod' && !selectedLoaders.includes(launchLoader)) {
-            selectedLoaders = [launchLoader]; // Принудительно устанавливаем
+        if (launchLoader && currentContentType === 'mod') {
+            selectedLoaders = [launchLoader];
         }
     }
 

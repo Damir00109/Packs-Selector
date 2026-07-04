@@ -141,6 +141,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Скрыть фильтры версии/лоадера, если заданы -version и -loader",
     )
     parser.add_argument(
+        "--launcher",
+        action="store_true",
+        help="Режим лаунчера: обязательны -version и -loader, включает --lock-filters",
+    )
+    parser.add_argument(
         "--quiet",
         action="store_true",
         help="Меньше сообщений в консоли",
@@ -188,6 +193,15 @@ if __name__ == "__main__" and any(flag in sys.argv for flag in ("-h", "--help"))
 import eel  # noqa: E402
 
 args = build_parser().parse_args()
+
+if args.launcher:
+    args.lock_filters = True
+    if not (args.mc_version and str(args.mc_version).strip()):
+        print("Ошибка: в режиме --launcher обязателен -version / --mc-version", file=sys.stderr)
+        sys.exit(2)
+    if not (args.loader and str(args.loader).strip()):
+        print("Ошибка: в режиме --launcher обязателен -loader", file=sys.stderr)
+        sys.exit(2)
 
 ENABLED_PACKS: Set[str] = {"mod"} if args.server else parse_pack_list(args.packs)
 if not ENABLED_PACKS:
