@@ -372,9 +372,9 @@ def download_and_install(project_id, slug, project_type, version_id, title):
         target.write_bytes(file_res.content)
 
         log(f"Установлено: {title} → {target}")
-        return {"success": True, "message": f"Успешно установлен: {title}"}
+        return {"status": "success", "success": True, "message": f"Успешно установлен: {title}"}
     except Exception as exc:
-        return {"success": False, "message": f"Ошибка при установке {title}: {exc}"}
+        return {"status": "error", "success": False, "message": f"Ошибка при установке {title}: {exc}"}
 
 
 @eel.expose

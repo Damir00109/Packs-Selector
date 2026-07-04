@@ -760,6 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!foundVersionForInstall) {
             btn.textContent = 'Нет подходящей версии';
             btn.classList.add('error');
+            btn.disabled = false;
             setTimeout(async () => {
                 const updatedStatus = await getInstalledStatus(project.project_id);
                 applyButtonStatus(btn, updatedStatus, project);
@@ -783,7 +784,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         btn.classList.remove('installing');
 
-        if (result && result.status === 'success') {
+        const installOk = result && (result.status === 'success' || result.success === true);
+        if (installOk) {
             await loadInstalledFiles();
             const updatedStatus = await getInstalledStatus(project.project_id);
             applyButtonStatus(btn, updatedStatus, project);
